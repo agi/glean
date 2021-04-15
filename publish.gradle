@@ -56,10 +56,6 @@ ext.configurePublish = { jnaForTestConfiguration = null ->
         from "$buildDir/rustJniLibs/desktop"
     }
 
-    project.afterEvaluate {
-        forUnitTestsJarTask.dependsOn(tasks["cargoBuild"])
-    }
-
     task sourcesJar(type: Jar) {
         from android.sourceSets.main.java.srcDirs
         classifier = 'sources'
