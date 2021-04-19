@@ -6,6 +6,7 @@
 
 package mozilla.telemetry.glean.rust
 
+import android.util.Log
 import com.sun.jna.Library
 import com.sun.jna.Native
 import com.sun.jna.Pointer
@@ -69,11 +70,15 @@ internal fun Pointer.getRustString(): String {
  */
 internal fun loadIndirect(libraryName: String): LibGleanFFI {
     val lib = try {
+        Log.w("glean/ffiload", "Trying to load ${libraryName}")
         Native.load(libraryName, LibGleanFFI::class.java) as LibGleanFFI
     } catch (e: UnsatisfiedLinkError) {
+        Log.w("glean/ffiload", "Failed to load ${libraryName}")
         try {
-            Native.load("libxul", LibGleanFFI::class.java) as LibGleanFFI
+            Log.w("glean/ffiload", "Trying to load xul")
+            Native.load("xul", LibGleanFFI::class.java) as LibGleanFFI
         } catch (e: UnsatisfiedLinkError) {
+            Log.w("glean/ffiload", "Failed to load xul")
             Proxy.newProxyInstance(
                 LibGleanFFI::class.java.classLoader,
                 arrayOf(LibGleanFFI::class.java)
@@ -83,6 +88,7 @@ internal fun loadIndirect(libraryName: String): LibGleanFFI {
         }
     }
 
+    Log.w("glean/ffiload", "Glean loaded. Continue.")
     lib.glean_enable_logging()
     return lib
 }
