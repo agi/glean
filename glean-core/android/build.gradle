@@ -63,6 +63,12 @@ android {
         }
     }
 
+    sourceSets {
+        main.jniLibs.srcDirs += "$buildDir/nativeLibs/android"
+        test.resources.srcDirs += "$buildDir/rustJniLibs/desktop"
+        test.resources.srcDirs += "$buildDir/nativeLibs/desktop"
+    }
+
     // Uncomment to include debug symbols in native library builds.
     // packagingOptions { doNotStrip "**/*.so" }
 
@@ -148,6 +154,8 @@ dependencies {
     jnaForTest "net.java.dev.jna:jna:$versions.jna@jar"
     implementation "net.java.dev.jna:jna:$versions.jna@aar"
 
+    implementation project(":glean-native")
+
     // Note: the following version must be kept in sync
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutines"
@@ -180,20 +188,6 @@ dependencies {
     testImplementation "androidx.test:core-ktx:$versions.androidx_core"
     testImplementation "com.squareup.okhttp3:mockwebserver:$versions.mockwebserver"
     testImplementation "androidx.work:work-testing:$versions.androidx_work"
-
-    // We need to depend on glean-native to have `libglean_ffi.so` around in tests.
-    // When depending on project(":glean-native") here this fails,
-    // probably because by default that project is just empty.
-    // What we really need is the packages jar, or as we call it: `forUnitTests`.
-    // For now we take it from `mavenLocal` (of course that requires to publish it there first).
-    //
-    // This should be fixed at some point.
-    testImplementation project(":glean-native")
-    // If using it from the published package it just works.
-    // To do so:
-    // 1. Run `./gradlew glean-native:publishToMavenLocal`
-    // 2. Remove the `testImplementation` line above, uncomment the line below.
-    //testImplementation "org.mozilla.telemetry:glean-native-forUnitTests:+"
 
     androidTestImplementation "androidx.test:runner:$versions.androidx_test"
     androidTestImplementation "androidx.test.espresso:espresso-core:$versions.androidx_espresso"
